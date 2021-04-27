@@ -67,13 +67,19 @@ impl Linker {
 
         if let Some(symbolic_link_parent_path) = symbolic_link_file_path.parent() {
             if !symbolic_link_parent_path.exists() {
+                if !symbolic_link_parent_path.is_dir(){
+                    debug!("The parent path is exists, but it's not a directory: {}.", symbolic_link_parent_path.to_str().unwrap());
+                    if force{
+                        debug!("Force clean the parent path: {}.", symbolic_link_parent_path.to_str().unwrap());
+                        if !simulate { fs::remove_file(&symbolic_link_parent_path)? }
+                    }
+                }
                 debug!("Create parent directory: {}.", symbolic_link_parent_path.to_str().unwrap());
                 if !simulate { fs::create_dir_all(&symbolic_link_parent_path)? }
             }
             if relative {
                 link_content = target_file_path
-                    .relative_to(&symbolic_link_parent_path)
-                    .unwrap()
+                    .relative_to(&symbolic_link_parent_path.canonicalize()?).unwrap();
             }
         }
 
@@ -86,6 +92,7 @@ impl Linker {
                 if !simulate { fs::remove_dir_all(&symbolic_link_file_path)? }
             }
         }
+        debug!("Create symbolic link : {} target {}.", symbolic_link_file_path.to_str().unwrap(),link_content.to_str().unwrap());
         if !simulate {
             return std::os::unix::fs::symlink(&link_content, &symbolic_link_file_path);
         } else {
