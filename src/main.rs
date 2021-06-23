@@ -33,7 +33,6 @@ fn main() {
     }
 }
 
-
 fn handler(matches: ArgMatches<'static>) -> Result<()> {
     debug!("args: {:?}", matches);
     let workspace = PathBuf::from(matches.value_of("workspace").unwrap_or("."))
@@ -54,12 +53,12 @@ fn handler(matches: ArgMatches<'static>) -> Result<()> {
                 configuration.force = Some(force);
             }
             debug!("configuration: {:?}", configuration);
-            Linker::create(&workspace, &configuration,simulate)
+            Linker::create(&workspace, &configuration, simulate)
         }
         ("delete", Some(_matches)) => {
             let configuration = loader.load(&workspace)?;
             debug!("configuration: {:?}", configuration);
-            Linker::delete(&workspace, &configuration,simulate)
+            Linker::delete(&workspace, &configuration, simulate)
         }
         _ => {
             let configuration = loader.load(&workspace)?;
